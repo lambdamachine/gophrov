@@ -28,5 +28,18 @@ type Application struct {
 }
 
 func (app *Application) String() string {
-	return fmt.Sprintf("%s %s", app.Fn, app.Arg)
+	return fmt.Sprintf("%s %s", app.Fn, &parens{app.Arg})
+}
+
+type parens struct {
+	expr Λ
+}
+
+func (prns *parens) String() string {
+	switch prns.expr.(type) {
+	case *Application:
+		return fmt.Sprintf("(%s)", prns.expr.String())
+	default:
+		return prns.expr.String()
+	}
 }
