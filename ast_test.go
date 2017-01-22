@@ -10,6 +10,13 @@ var astExamples = map[λ.Λ]string{
 		&λ.Variable{"x"},
 		&λ.Variable{"x"},
 	}: "λx.x",
+	&λ.Abstraction{
+		&λ.Variable{"x"},
+		&λ.Application{
+			&λ.Variable{"x"},
+			&λ.Variable{"x"},
+		},
+	}: "λx.x x",
 }
 
 func TestAST(t *testing.T) {
