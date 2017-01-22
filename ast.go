@@ -1,5 +1,7 @@
 package λ
 
+import "fmt"
+
 type Λ interface {
 	String() string
 }
@@ -9,7 +11,7 @@ type Variable struct {
 }
 
 func (v *Variable) String() string {
-	return ""
+	return v.Name
 }
 
 type Abstraction struct {
@@ -18,7 +20,7 @@ type Abstraction struct {
 }
 
 func (λ *Abstraction) String() string {
-	return ""
+	return fmt.Sprintf("λ%s.%s", λ.Arg, λ.Body)
 }
 
 type Application struct {
@@ -26,5 +28,5 @@ type Application struct {
 }
 
 func (app *Application) String() string {
-	return ""
+	return fmt.Sprintf("%s %s", app.Fn, app.Arg)
 }
