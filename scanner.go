@@ -43,4 +43,6 @@ const (
 	EOF    Token = ""
 	LAMBDA Token = "λ"
 	DOT    Token = "."
+	LPAREN Token = "("
+	RPAREN Token = ")"
 )
