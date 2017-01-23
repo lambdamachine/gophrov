@@ -41,7 +41,12 @@ func (scnr *Scanner) Scan() Token {
 			buf.WriteRune(r)
 
 			for {
-				r, _, _ := scnr.input.ReadRune()
+				r, _, err := scnr.input.ReadRune()
+
+				if err != nil {
+					scnr.input.UnreadRune()
+					return Token(buf.String())
+				}
 
 				switch r {
 				case ' ', '\n', '\t', 'λ', '.', '(', ')':
