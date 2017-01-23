@@ -45,6 +45,7 @@ func (scnr *Scanner) Scan() Token {
 
 				switch r {
 				case ' ', '\n', '\t', 'λ', '.', '(', ')':
+					scnr.input.UnreadRune()
 					return Token(buf.String())
 				default:
 					buf.WriteRune(r)
