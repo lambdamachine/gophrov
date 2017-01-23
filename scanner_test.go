@@ -2,6 +2,7 @@ package λ_test
 
 import (
 	"."
+	"bufio"
 	"bytes"
 	"testing"
 )
@@ -91,12 +92,13 @@ var scannerExamples = map[string][]λ.Token{
 }
 
 func TestScanner(t *testing.T) {
+	var scanner λ.Scanner
+
 	for example, expected := range scannerExamples {
-		input := bytes.NewReader([]byte(example))
-		scanner := λ.NewScanner(input)
+		input := bufio.NewReader(bytes.NewReader([]byte(example)))
 
 		for i := 0; ; i++ {
-			token := scanner.Scan()
+			token := scanner.Scan(input)
 			expectedToken := expected[i]
 
 			if token != expectedToken {

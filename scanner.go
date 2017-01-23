@@ -1,22 +1,15 @@
 package λ
 
 import (
-	"bufio"
 	"bytes"
 	"io"
 )
 
-type Scanner struct {
-	input io.RuneScanner
-}
+type Scanner struct{}
 
-func NewScanner(input io.Reader) *Scanner {
-	return &Scanner{input: bufio.NewReader(input)}
-}
-
-func (scnr *Scanner) Scan() Token {
+func (scnr *Scanner) Scan(input io.RuneScanner) Token {
 	for {
-		r, _, err := scnr.input.ReadRune()
+		r, _, err := input.ReadRune()
 
 		if err != nil {
 			return EOF
@@ -41,7 +34,7 @@ func (scnr *Scanner) Scan() Token {
 			buf.WriteRune(r)
 
 			for {
-				r, _, err := scnr.input.ReadRune()
+				r, _, err := input.ReadRune()
 
 				if err != nil {
 					goto exit
@@ -56,7 +49,7 @@ func (scnr *Scanner) Scan() Token {
 			}
 
 		exit:
-			scnr.input.UnreadRune()
+			input.UnreadRune()
 			return Token(buf.String())
 		}
 	}
