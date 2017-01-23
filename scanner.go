@@ -15,4 +15,8 @@ func (scnr *Scanner) Scan() Token {
 
 type Token string
 
-const EOF Token = ""
+const (
+	EOF    Token = ""
+	LAMBDA Token = "λ"
+	DOT    Token = "."
+)
