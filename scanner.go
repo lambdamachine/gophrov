@@ -30,6 +30,10 @@ func (scnr *Scanner) Scan() Token {
 				return LAMBDA
 			case '.':
 				return DOT
+			case '(':
+				return LPAREN
+			case ')':
+				return RPAREN
 			}
 
 			return EOF
