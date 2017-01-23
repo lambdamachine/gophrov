@@ -10,5 +10,9 @@ func NewScanner(input io.Reader) *Scanner {
 }
 
 func (scnr *Scanner) Scan() Token {
-	return nil
+	return EOF
 }
+
+type Token string
+
+const EOF Token = ""
