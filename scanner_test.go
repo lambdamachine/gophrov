@@ -69,6 +69,25 @@ var scannerExamples = map[string][]λ.Token{
 		λ.Token("x"),
 		λ.EOF,
 	},
+	"λx.x (hello (yada yada)\n\tλyyy.yyy zzz)": {
+		λ.LAMBDA,
+		λ.Token("x"),
+		λ.DOT,
+		λ.Token("x"),
+		λ.LPAREN,
+		λ.Token("hello"),
+		λ.LPAREN,
+		λ.Token("yada"),
+		λ.Token("yada"),
+		λ.RPAREN,
+		λ.LAMBDA,
+		λ.Token("yyy"),
+		λ.DOT,
+		λ.Token("yyy"),
+		λ.Token("zzz"),
+		λ.RPAREN,
+		λ.EOF,
+	},
 }
 
 func TestScanner(t *testing.T) {
