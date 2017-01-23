@@ -2,6 +2,7 @@ package λ
 
 import (
 	"bufio"
+	"bytes"
 	"io"
 )
 
@@ -36,7 +37,19 @@ func (scnr *Scanner) Scan() Token {
 				return RPAREN
 			}
 
-			return EOF
+			var buf bytes.Buffer
+			buf.WriteRune(r)
+
+			for {
+				r, _, _ := scnr.input.ReadRune()
+
+				switch r {
+				case ' ', '\n', '\t', 'λ', '.', '(', ')':
+					return Token(buf.String())
+				default:
+					buf.WriteRune(r)
+				}
+			}
 		}
 	}
 }
