@@ -6,14 +6,16 @@ import (
 
 type Parser struct{}
 
-func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
+func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 	var (
 		scnr Scanner
+		pos  = 0
 		zn   = &zone{nil, nil}
 	)
 
 	for {
-		token := scnr.Scan(input)
+		token, n := scnr.Scan(input)
+		pos += n
 
 		switch token {
 		case LPAREN:
@@ -39,7 +41,8 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 
 			zn.expr = expr
 		case LAMBDA:
-			token = scnr.Scan(input)
+			token, n = scnr.Scan(input)
+			pos += n
 
 			switch token {
 			case LAMBDA, LPAREN, RPAREN, DOT, EOF:
@@ -61,7 +64,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 				}
 			}
 
-			return zn.expr, nil
+			return zn.expr, pos, nil
 		default:
 			thisVar := &Variable{string(token)}
 
@@ -78,3 +81,15 @@ type zone struct {
 	zn   *zone
 	expr Λ
 }
+
+type unexpectedEndOfInput struct{}
+
+func (err *unexpectedEndOfInput) Error() string {
+	return "unexpected end of input"
+}
+
+func (err *unexpectedEndOfInput) GoString() string {
+	return "UnexpectedEndOfInput"
+}
+
+var UnexpectedEndOfInput = &unexpectedEndOfInput{}
