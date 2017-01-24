@@ -40,7 +40,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 		case EOF:
 			expr := zn.expr
 
-			if zn.zn != nil {
+			for zn.zn != nil {
 				if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
 					zn = zn.zn
 					abstr.Body = expr
