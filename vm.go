@@ -12,8 +12,18 @@ type VM struct {
 }
 
 func (vm *VM) EvalString(src string) (error, Trace) {
-	vm.parser.Report = func(r Report) error {
-		return nil
+	vm.parser.Report = func(r Report) (err error) {
+		if r == nil {
+			return
+		}
+
+		switch r.Event() {
+		case ABSTRACTION_ENTER:
+		case ABSTRACTION_EXIT:
+		case VARIABLE_SPOT:
+		}
+
+		return
 	}
 
 	input := bufio.NewReader(bytes.NewReader([]byte(src)))
