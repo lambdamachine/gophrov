@@ -99,8 +99,8 @@ func TestParseInvalidLambdaExpressions(t *testing.T) {
 		if err == nil {
 			t.Errorf("expression (%s) should be recognized as invalid ",
 				example)
-		} else if err.Error() != expected.err.Error() || pos != expected.pos {
-			t.Errorf("expected (%s) to throw %#v at rune %d, got %#v at rune %d instead",
+		} else if err != expected.err || pos != expected.pos {
+			t.Errorf("expected (%s) to throw %q at rune %d, got %q at rune %d instead",
 				example, expected.err, expected.pos, err, pos)
 		}
 	}

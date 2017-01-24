@@ -1,6 +1,7 @@
 package λ
 
 import (
+	"errors"
 	"io"
 )
 
@@ -135,26 +136,7 @@ func (zn *zone) SetOrApply(expr Λ) {
 	zn.expr = expr
 }
 
-type unexpectedEndOfInput struct{}
-
-func (err *unexpectedEndOfInput) Error() string {
-	return "unexpected end of input"
-}
-
-func (err *unexpectedEndOfInput) GoString() string {
-	return "UnexpectedEndOfInput"
-}
-
-var UnexpectedEndOfInput = &unexpectedEndOfInput{}
-
-type unexpectedToken struct{}
-
-func (err *unexpectedToken) Error() string {
-	return "unexpected token"
-}
-
-func (err *unexpectedToken) GoString() string {
-	return "UnexpectedToken"
-}
-
-var UnexpectedToken = &unexpectedToken{}
+var (
+	UnexpectedEndOfInput = errors.New("unexpected end of input")
+	UnexpectedToken      = errors.New("unexpected token")
+)
