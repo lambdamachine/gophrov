@@ -77,6 +77,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				}
 			}
 		case DOT:
+			return nil, pos - 1, UnexpectedToken
 		case EOF:
 			if zn.expr == nil {
 				return nil, pos, UnexpectedEndOfInput
