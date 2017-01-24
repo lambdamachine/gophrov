@@ -7,7 +7,7 @@ import (
 
 type Scanner struct{}
 
-func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
+func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, n int) {
 	for {
 		r, _, err := input.ReadRune()
 
@@ -16,7 +16,7 @@ func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
 			return
 		}
 
-		pos++
+		n++
 
 		switch r {
 		case ' ', '\n', '\t':
@@ -32,37 +32,40 @@ func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
 			case ')':
 				tok = RPAREN
 			default:
-				goto variable
+				var tn int
+				input.UnreadRune()
+				tok, tn = scanVariable(input)
+				n += tn - 1 // reduce an unread rune from 2-lines above...
 			}
 
-			return
-
-		variable:
-			var buf bytes.Buffer
-			buf.WriteRune(r)
-
-			for {
-				r, _, err := input.ReadRune()
-
-				if err != nil {
-					goto exit
-				}
-
-				switch r {
-				case ' ', '\n', '\t', 'λ', '.', '(', ')':
-					goto exit
-				default:
-					pos++
-					buf.WriteRune(r)
-				}
-			}
-
-		exit:
-			input.UnreadRune()
-			tok = Token(buf.String())
 			return
 		}
 	}
+}
+
+func scanVariable(input io.RuneScanner) (tok Token, n int) {
+	var buf bytes.Buffer
+
+	for {
+		r, _, err := input.ReadRune()
+
+		if err != nil {
+			goto exit
+		}
+
+		switch r {
+		case ' ', '\n', '\t', 'λ', '.', '(', ')':
+			goto exit
+		default:
+			n++
+			buf.WriteRune(r)
+		}
+	}
+
+exit:
+	input.UnreadRune()
+	tok = Token(buf.String())
+	return
 }
 
 type Token string
