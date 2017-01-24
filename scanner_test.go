@@ -96,10 +96,12 @@ func TestScanner(t *testing.T) {
 
 	for example, expected := range scannerExamples {
 		input := bufio.NewReader(bytes.NewReader([]byte(example)))
+		total := 0
 
 		for i := 0; ; i++ {
-			token := scanner.Scan(input)
 			expectedToken := expected[i]
+			token, n := scanner.Scan(input)
+			total += n
 
 			if token != expectedToken {
 				t.Fatalf("expected to scan '%s', got '%s'", expectedToken, token)
@@ -112,6 +114,11 @@ func TestScanner(t *testing.T) {
 
 				break
 			}
+		}
+
+		if total != len(example) {
+			t.Fatalf("number of runes read %d does not equal to length of source %d",
+				total, len(example))
 		}
 	}
 }
