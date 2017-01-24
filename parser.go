@@ -1,12 +1,21 @@
 package λ
 
 import (
-	"fmt"
 	"io"
 )
 
 type Parser struct{}
 
 func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
-	return nil, fmt.Errorf("not implemented yet")
+	var scnr Scanner
+
+	for {
+		token := scnr.Scan(input)
+
+		switch token {
+		case EOF, LAMBDA, DOT, LPAREN, RPAREN:
+		default:
+			return &Variable{string(token)}, nil
+		}
+	}
 }
