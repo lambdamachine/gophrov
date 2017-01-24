@@ -52,7 +52,7 @@ var astExamples = map[λ.Λ]string{
 				&λ.Variable{"n"},
 			},
 		},
-	}: "λx.y (z x) λm.n",
+	}: "λx.y (z x) (λm.n)",
 	&λ.Application{
 		&λ.Application{
 			&λ.Application{

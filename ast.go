@@ -37,9 +37,9 @@ type parens struct {
 
 func (prns *parens) String() string {
 	switch prns.expr.(type) {
-	case *Application:
-		return fmt.Sprintf("(%s)", prns.expr.String())
-	default:
+	case *Variable:
 		return prns.expr.String()
+	default:
+		return fmt.Sprintf("(%s)", prns.expr.String())
 	}
 }
