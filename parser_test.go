@@ -20,6 +20,7 @@ var parserValidExamples = map[string]string{
 	"x ((y) (((z x))))":     "x (y (z x))",
 	"λx.x":                  "λx.x",
 	"λx.λy.x":               "λx.λy.x",
+	"(λx.x)":                "λx.x",
 }
 
 func TestParseValidLambdaExpressions(t *testing.T) {
