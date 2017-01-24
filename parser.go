@@ -49,6 +49,10 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 			zn.expr = expr
 		case LAMBDA:
+			if zn.expr != nil {
+				zn = &zone{zn, nil}
+			}
+
 		definition:
 			for {
 				token, n = scnr.Scan(input)
