@@ -9,7 +9,7 @@ type Parser struct{}
 func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 	var (
 		scnr Scanner
-		expr Λ
+		zn   = &zone{nil}
 	)
 
 	for {
@@ -18,18 +18,19 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 		switch token {
 		case LAMBDA, DOT, LPAREN, RPAREN:
 		case EOF:
-			return expr, nil
+			return zn.expr, nil
 		default:
 			thisVar := &Variable{string(token)}
 
-			if expr == nil {
-				expr = thisVar
+			if zn.expr == nil {
+				zn.expr = thisVar
 			} else {
-				expr = &Application{expr, thisVar}
+				zn.expr = &Application{zn.expr, thisVar}
 			}
 		}
 	}
 }
 
-type layer struct {
+type zone struct {
+  expr Λ
 }
