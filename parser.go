@@ -26,17 +26,8 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 			}
 
 			for paren := zn.paren; zn.paren == paren; {
-				expr := zn.expr
-
-				for zn.zn != nil {
-					if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
-						zn = zn.zn
-						abstr.Body = expr
-						expr = zn.expr
-					} else {
-						break
-					}
-				}
+				var expr Λ
+				zn, expr = closeAbstractions(zn)
 
 				if zn.expr == nil || zn.zn == nil {
 					return nil, pos - 1, UnexpectedToken
@@ -85,17 +76,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				return nil, pos, UnexpectedEndOfInput
 			}
 
-			expr := zn.expr
-
-			for zn.zn != nil {
-				if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
-					zn = zn.zn
-					abstr.Body = expr
-					expr = zn.expr
-				} else {
-					break
-				}
-			}
+			zn, _ = closeAbstractions(zn)
 
 			if zn.expr == nil || zn.zn != nil {
 				return nil, pos, UnexpectedEndOfInput
@@ -103,15 +84,31 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 			return zn.expr, pos, nil
 		default:
-			thisVar := &Variable{string(token)}
+			var expr Λ = &Variable{string(token)}
 
-			if zn.expr == nil {
-				zn.expr = thisVar
-			} else {
-				zn.expr = &Application{zn.expr, thisVar}
+			if zn.expr != nil {
+				expr = &Application{zn.expr, expr}
 			}
+
+			zn.expr = expr
 		}
 	}
+}
+
+func closeAbstractions(inzn *zone) (zn *zone, expr Λ) {
+	zn, expr = inzn, inzn.expr
+
+	for zn.zn != nil {
+		if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
+			zn = zn.zn
+			abstr.Body = expr
+			expr = zn.expr
+		} else {
+			break
+		}
+	}
+
+	return
 }
 
 type zone struct {
