@@ -61,6 +61,7 @@ var parserInvalidExamples = map[string]struct {
 	"x (x y))":   {λ.UnexpectedToken, 7},
 	"λx.()":      {λ.UnexpectedToken, 4},
 	"λx.(x))":    {λ.UnexpectedToken, 6},
+	"λ":          {λ.UnexpectedEndOfInput, 1},
 }
 
 func TestParseInvalidLambdaExpressions(t *testing.T) {
