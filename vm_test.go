@@ -14,6 +14,7 @@ var vmInvalidExamples = map[string]struct {
 	"λx y.x y z":    {λ.UnexpectedFreeVariable, 8},
 	"λx.λy.x y z":   {λ.UnexpectedFreeVariable, 9},
 	"λx.x (x λy.z)": {λ.UnexpectedFreeVariable, 11},
+	"λx..":          {λ.UnexpectedToken, 3},
 }
 
 func TestVM(t *testing.T) {
