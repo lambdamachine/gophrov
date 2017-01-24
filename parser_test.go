@@ -31,14 +31,38 @@ func TestParseValidLambdaExpressions(t *testing.T) {
 
 	for example, expectedExprString := range parserValidExamples {
 		source := bufio.NewReader(bytes.NewReader([]byte(example)))
-		expr, err := parser.Parse(source)
+		expr, n, err := parser.Parse(source)
 
 		if err != nil {
 			t.Errorf("expected (%s) to be parsed successfully, got error: %v",
 				example, err)
-		} else if expr.String() != expectedExprString {
-			t.Errorf("expected (%s) to be parsed as (%s), got (%s) instead",
-				example, expectedExprString, expr)
+		} else if expr.String() != expectedExprString || n != len(example) {
+			t.Errorf("expected to parse %d runes of (%s) as (%s), got %d runes as (%s) instead",
+				len(example), example, expectedExprString, n, expr)
+		}
+	}
+}
+
+var parserInvalidExamples = map[string]struct {
+	err error
+	pos int
+}{
+	"": {λ.UnexpectedEndOfInput, 0},
+}
+
+func TestParseInvalidLambdaExpressions(t *testing.T) {
+	var parser λ.Parser
+
+	for example, expected := range parserInvalidExamples {
+		source := bufio.NewReader(bytes.NewReader([]byte(example)))
+		_, pos, err := parser.Parse(source)
+
+		if err == nil {
+			t.Errorf("expression (%s) should be recognized as invalid ",
+				example)
+		} else if err.Error() != expected.err.Error() || pos != expected.pos {
+			t.Errorf("expected (%s) to throw %#v at rune %d, got %#v at rune %d instead",
+				example, expected.err, expected.pos, err, pos)
 		}
 	}
 }
