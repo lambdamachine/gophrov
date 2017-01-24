@@ -21,6 +21,9 @@ var parserValidExamples = map[string]string{
 	"λx.x":                  "λx.x",
 	"λx.λy.x":               "λx.λy.x",
 	"(λx.x)":                "λx.x",
+	"(λx.(λy.x))":           "λx.λy.x",
+	"λx.x (y z) m n":        "λx.x (y z) m n",
+	// FIXME: "x (λx.x y (λy.x) z)":   "x (λx.x y (λy.x) z)",
 }
 
 func TestParseValidLambdaExpressions(t *testing.T) {
