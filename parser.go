@@ -62,7 +62,13 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				case LAMBDA, LPAREN, RPAREN:
 					return nil, pos - 1, UnexpectedToken
 				case DOT:
-					break definition
+					if zn.zn != nil {
+						if _, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
+							break definition
+						}
+					}
+
+					return nil, pos - 1, UnexpectedToken
 				case EOF:
 					return nil, pos, UnexpectedEndOfInput
 				default:
