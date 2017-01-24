@@ -10,7 +10,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 	var (
 		scnr Scanner
 		pos  = 0
-		zn   = &zone{nil, nil}
+		zn   = &zone{nil, 0, nil}
 	)
 
 	for {
@@ -19,38 +19,40 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 		switch token {
 		case LPAREN:
-			zn = &zone{zn, nil}
+			zn = &zone{zn, zn.paren + 1, nil}
 		case RPAREN:
 			if zn.expr == nil {
 				return nil, pos - 1, UnexpectedToken
 			}
 
-			expr := zn.expr
+			for paren := zn.paren; zn.paren == paren; {
+				expr := zn.expr
 
-			for zn.zn != nil {
-				if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
-					zn = zn.zn
-					abstr.Body = expr
-					expr = zn.expr
-				} else {
-					break
+				for zn.zn != nil {
+					if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
+						zn = zn.zn
+						abstr.Body = expr
+						expr = zn.expr
+					} else {
+						break
+					}
 				}
+
+				if zn.expr == nil || zn.zn == nil {
+					return nil, pos - 1, UnexpectedToken
+				}
+
+				zn = zn.zn
+
+				if zn.expr != nil {
+					expr = &Application{zn.expr, expr}
+				}
+
+				zn.expr = expr
 			}
-
-			if zn.expr == nil || zn.zn == nil {
-				return nil, pos - 1, UnexpectedToken
-			}
-
-			zn = zn.zn
-
-			if zn.expr != nil {
-				expr = &Application{zn.expr, expr}
-			}
-
-			zn.expr = expr
 		case LAMBDA:
 			if zn.expr != nil {
-				zn = &zone{zn, nil}
+				zn = &zone{zn, zn.paren, nil}
 			}
 
 		definition:
@@ -73,7 +75,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 					return nil, pos, UnexpectedEndOfInput
 				default:
 					zn.expr = &Abstraction{&Variable{string(token)}, nil}
-					zn = &zone{zn, nil}
+					zn = &zone{zn, zn.paren, nil}
 				}
 			}
 		case DOT:
@@ -113,8 +115,9 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 }
 
 type zone struct {
-	zn   *zone
-	expr Λ
+	zn    *zone
+	paren int
+	expr  Λ
 }
 
 type unexpectedEndOfInput struct{}
