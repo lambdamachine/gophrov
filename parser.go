@@ -37,7 +37,12 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 			}
 
 			for paren := zn.paren; zn.paren == paren; {
-				zn = closeAbstractions(zn)
+				var err error
+				zn, err = prsr.closeAbstractions(zn)
+
+				if err != nil {
+					return nil, pos, err
+				}
 
 				if zn.IsEmpty() || zn.IsRoot() {
 					return nil, pos - 1, UnexpectedToken
@@ -71,8 +76,14 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				case EOF:
 					return nil, pos, UnexpectedEndOfInput
 				default:
-					zn.expr = &Abstraction{&Variable{string(token)}, nil}
+					abstr := &Abstraction{&Variable{string(token)}, nil}
+
+					zn.expr = abstr
 					zn = zn.NewAbstractionZone()
+
+					if err := prsr.Report(&report{ABSTRACTION_ENTER, abstr}); err != nil {
+						return nil, pos, err
+					}
 				}
 			}
 		case DOT:
@@ -82,7 +93,12 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				return nil, pos, UnexpectedEndOfInput
 			}
 
-			zn = closeAbstractions(zn)
+			var err error
+			zn, err = prsr.closeAbstractions(zn)
+
+			if err != nil {
+				return nil, pos, err
+			}
 
 			if zn.IsEmpty() || !zn.IsRoot() {
 				return nil, pos, UnexpectedEndOfInput
@@ -90,12 +106,17 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 			return zn.expr, pos, nil
 		default:
-			zn.SetOrApply(&Variable{string(token)})
+			variable := &Variable{string(token)}
+			zn.SetOrApply(variable)
+
+			if err := prsr.Report(&report{VARIABLE_SPOT, variable}); err != nil {
+				return nil, pos, err
+			}
 		}
 	}
 }
 
-func closeAbstractions(zn *zone) *zone {
+func (prsr *Parser) closeAbstractions(zn *zone) (*zone, error) {
 	expr := zn.expr
 
 	for !zn.IsRoot() {
@@ -103,12 +124,16 @@ func closeAbstractions(zn *zone) *zone {
 			zn = zn.zn
 			abstr.Body = expr
 			expr = zn.expr
+
+			if err := prsr.Report(&report{ABSTRACTION_EXIT, abstr}); err != nil {
+				return nil, err
+			}
 		} else {
 			break
 		}
 	}
 
-	return zn
+	return zn, nil
 }
 
 type Reporter func(Report) error
@@ -116,7 +141,19 @@ type Reporter func(Report) error
 type Report interface {
 	Event() ParserEvent
 	Expr() Λ
-	Pos() int
+}
+
+type report struct {
+	event ParserEvent
+	expr  Λ
+}
+
+func (rprt *report) Event() ParserEvent {
+	return rprt.event
+}
+
+func (rprt *report) Expr() Λ {
+	return rprt.expr
 }
 
 type ParserEvent int
