@@ -8,14 +8,16 @@ import (
 )
 
 var parserValidExamples = map[string]string{
-	"x":         "x",
-	"x y":       "x y",
-	"x y z":     "x y z",
-	"(x)":       "x",
-	"(x y)":     "x y",
-	"(x y z)":   "x y z",
-	"((x y) z)": "x y z",
-	"x (y z)":   "x (y z)",
+	"x":                     "x",
+	"x y":                   "x y",
+	"x y z":                 "x y z",
+	"(x)":                   "x",
+	"(x y)":                 "x y",
+	"(x y z)":               "x y z",
+	"((x y) z)":             "x y z",
+	"x (y z)":               "x (y z)",
+	"((x (y z) (x y z) y))": "x (y z) (x y z) y",
+	"x ((y) (((z x))))":     "x (y (z x))",
 }
 
 func TestParseValidLambdaExpressions(t *testing.T) {
