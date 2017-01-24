@@ -97,3 +97,15 @@ func (err *unexpectedEndOfInput) GoString() string {
 }
 
 var UnexpectedEndOfInput = &unexpectedEndOfInput{}
+
+type unexpectedToken struct{}
+
+func (err *unexpectedToken) Error() string {
+	return "unexpected token"
+}
+
+func (err *unexpectedToken) GoString() string {
+	return "UnexpectedToken"
+}
+
+var UnexpectedToken = &unexpectedToken{}
