@@ -122,6 +122,12 @@ type Report interface {
 
 type ParserEvent int
 
+const (
+	ABSTRACTION_ENTER ParserEvent = iota
+	ABSTRACTION_EXIT
+	VARIABLE_SPOT
+)
+
 type zone struct {
 	zn    *zone
 	paren int

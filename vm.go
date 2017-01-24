@@ -15,8 +15,22 @@ func (vm *VM) EvalString(src string) (error, Trace) {
 	sv := make(chan Report)
 	vm.parser.Supervisor = sv
 
+	defer close(sv)
+
 	go func() {
-		for _ = range sv {
+		for r := range sv {
+			if r == nil {
+				break
+			}
+
+			switch r.Event() {
+			case ABSTRACTION_ENTER:
+
+			case ABSTRACTION_EXIT:
+
+			case VARIABLE_SPOT:
+
+			}
 		}
 	}()
 
