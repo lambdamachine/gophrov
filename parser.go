@@ -20,6 +20,17 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 			zn = &zone{zn, nil}
 		case RPAREN:
 			expr := zn.expr
+
+			for zn.zn != nil {
+				if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
+					zn = zn.zn
+					abstr.Body = expr
+					expr = zn.expr
+				} else {
+					break
+				}
+			}
+
 			zn = zn.zn
 
 			if zn.expr != nil {
@@ -45,6 +56,8 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 					zn = zn.zn
 					abstr.Body = expr
 					expr = zn.expr
+				} else {
+					break
 				}
 			}
 
