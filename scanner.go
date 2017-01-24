@@ -7,12 +7,14 @@ import (
 
 type Scanner struct{}
 
-func (scnr *Scanner) Scan(input io.RuneScanner) Token {
+func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
 	for {
-		r, _, err := input.ReadRune()
+		r, n, err := input.ReadRune()
+		pos += n
 
 		if err != nil {
-			return EOF
+			tok = EOF
+			return
 		}
 
 		switch r {
@@ -21,20 +23,25 @@ func (scnr *Scanner) Scan(input io.RuneScanner) Token {
 		default:
 			switch r {
 			case 'λ':
-				return LAMBDA
+				tok = LAMBDA
 			case '.':
-				return DOT
+				tok = DOT
 			case '(':
-				return LPAREN
+				tok = LPAREN
 			case ')':
-				return RPAREN
+				tok = RPAREN
+			default:
+				goto variable
 			}
 
+			return
+
+		variable:
 			var buf bytes.Buffer
 			buf.WriteRune(r)
 
 			for {
-				r, _, err := input.ReadRune()
+				r, n, err := input.ReadRune()
 
 				if err != nil {
 					goto exit
@@ -44,13 +51,15 @@ func (scnr *Scanner) Scan(input io.RuneScanner) Token {
 				case ' ', '\n', '\t', 'λ', '.', '(', ')':
 					goto exit
 				default:
+					pos += n
 					buf.WriteRune(r)
 				}
 			}
 
 		exit:
 			input.UnreadRune()
-			return Token(buf.String())
+			tok = Token(buf.String())
+			return
 		}
 	}
 }
