@@ -22,7 +22,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 			zn = &zone{zn, nil}
 		case RPAREN:
 			if zn.expr == nil {
-				return nil, pos, UnexpectedToken
+				return nil, pos - 1, UnexpectedToken
 			}
 
 			expr := zn.expr
