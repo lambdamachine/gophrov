@@ -8,7 +8,8 @@ import (
 )
 
 var parserValidExamples = map[string]string{
-	"x": "x",
+	"x":   "x",
+	"x y": "x y",
 }
 
 func TestParseValidLambdaExpressions(t *testing.T) {
