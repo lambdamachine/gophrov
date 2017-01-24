@@ -4,17 +4,18 @@ import (
 	"io"
 )
 
-type Parser struct{}
+type Parser struct {
+	scnr Scanner
+}
 
 func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 	var (
-		scnr Scanner
-		pos  = 0
-		zn   = &zone{nil, 0, nil}
+		pos = 0
+		zn  = &zone{nil, 0, nil}
 	)
 
 	for {
-		token, n := scnr.Scan(input)
+		token, n := prsr.scnr.Scan(input)
 		pos += n
 
 		switch token {
@@ -48,7 +49,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 		definition:
 			for {
-				token, n = scnr.Scan(input)
+				token, n = prsr.scnr.Scan(input)
 				pos += n
 
 				switch token {
