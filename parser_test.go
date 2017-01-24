@@ -47,7 +47,9 @@ var parserInvalidExamples = map[string]struct {
 	err error
 	pos int
 }{
-	"": {λ.UnexpectedEndOfInput, 0},
+	"":   {λ.UnexpectedEndOfInput, 0},
+	"(":  {λ.UnexpectedEndOfInput, 1},
+	"(x": {λ.UnexpectedEndOfInput, 2},
 }
 
 func TestParseInvalidLambdaExpressions(t *testing.T) {
