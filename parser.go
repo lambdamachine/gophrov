@@ -64,7 +64,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				}
 			}
 
-			if zn.expr == nil {
+			if zn.expr == nil || zn.zn != nil {
 				return nil, pos, UnexpectedEndOfInput
 			}
 
