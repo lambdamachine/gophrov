@@ -12,6 +12,8 @@ type VM struct {
 }
 
 func (vm *VM) EvalString(src string) (error, Trace) {
+	scp := &scope{nil, map[string]bool{}}
+
 	vm.parser.Report = func(r Report) (err error) {
 		if r == nil {
 			return
@@ -19,8 +21,19 @@ func (vm *VM) EvalString(src string) (error, Trace) {
 
 		switch r.Event() {
 		case ABSTRACTION_ENTER:
+			switch expr := r.Expr().(type) {
+			case *Abstraction:
+				scp = scp.NewNestedScope(expr.Arg.Name)
+			}
 		case ABSTRACTION_EXIT:
+			scp = scp.parent
 		case VARIABLE_SPOT:
+			switch expr := r.Expr().(type) {
+			case *Variable:
+				if !scp.HasName(expr.Name) {
+					return UnexpectedFreeVariable
+				}
+			}
 		}
 
 		return
@@ -50,4 +63,18 @@ type trace struct {
 
 func (trc *trace) Pos() int {
 	return trc.pos
+}
+
+type scope struct {
+	parent *scope
+	names  map[string]bool
+}
+
+func (scp *scope) NewNestedScope(name string) *scope {
+	names := map[string]bool{name: true}
+	return &scope{scp, names}
+}
+
+func (scp *scope) HasName(name string) bool {
+	return true
 }
