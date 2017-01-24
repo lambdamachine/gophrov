@@ -11,7 +11,7 @@ type Parser struct {
 func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 	var (
 		pos = 0
-		zn  = &zone{nil, 0, nil}
+		zn  = newRootZone()
 	)
 
 	for {
@@ -20,7 +20,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 		switch token {
 		case LPAREN:
-			zn = &zone{zn, zn.paren + 1, nil}
+			zn = zn.NewParenZone()
 		case RPAREN:
 			if zn.IsEmpty() {
 				return nil, pos - 1, UnexpectedToken
@@ -35,16 +35,11 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				}
 
 				zn = zn.zn
-
-				if !zn.IsEmpty() {
-					expr = &Application{zn.expr, expr}
-				}
-
-				zn.expr = expr
+				zn.SetOrApply(expr)
 			}
 		case LAMBDA:
 			if !zn.IsEmpty() {
-				zn = &zone{zn, zn.paren, nil}
+				zn = zn.NewAbstractionZone()
 			}
 
 		definition:
@@ -67,7 +62,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 					return nil, pos, UnexpectedEndOfInput
 				default:
 					zn.expr = &Abstraction{&Variable{string(token)}, nil}
-					zn = &zone{zn, zn.paren, nil}
+					zn = zn.NewAbstractionZone()
 				}
 			}
 		case DOT:
@@ -85,13 +80,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 
 			return zn.expr, pos, nil
 		default:
-			var expr Λ = &Variable{string(token)}
-
-			if !zn.IsEmpty() {
-				expr = &Application{zn.expr, expr}
-			}
-
-			zn.expr = expr
+			zn.SetOrApply(&Variable{string(token)})
 		}
 	}
 }
@@ -118,12 +107,32 @@ type zone struct {
 	expr  Λ
 }
 
+func newRootZone() *zone {
+	return &zone{nil, 0, nil}
+}
+
+func (zn *zone) NewParenZone() *zone {
+	return &zone{zn, zn.paren + 1, nil}
+}
+
+func (zn *zone) NewAbstractionZone() *zone {
+	return &zone{zn, zn.paren, nil}
+}
+
 func (zn *zone) IsEmpty() bool {
 	return zn.expr == nil
 }
 
 func (zn *zone) IsRoot() bool {
 	return zn.zn == nil
+}
+
+func (zn *zone) SetOrApply(expr Λ) {
+	if !zn.IsEmpty() {
+		expr = &Application{zn.expr, expr}
+	}
+
+	zn.expr = expr
 }
 
 type unexpectedEndOfInput struct{}
