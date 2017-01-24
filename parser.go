@@ -64,6 +64,10 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				}
 			}
 
+			if zn.expr == nil {
+				return nil, pos, UnexpectedEndOfInput
+			}
+
 			return zn.expr, pos, nil
 		default:
 			thisVar := &Variable{string(token)}
