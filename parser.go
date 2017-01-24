@@ -27,7 +27,15 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, error) {
 			}
 
 			zn.expr = expr
-		case LAMBDA, DOT:
+		case LAMBDA:
+			token = scnr.Scan(input)
+
+			switch token {
+			case LAMBDA, LPAREN, RPAREN, DOT, EOF:
+			default:
+				zn.expr = &Abstraction{&Variable{string(token)}, nil}
+			}
+		case DOT:
 		case EOF:
 			return zn.expr, nil
 		default:
