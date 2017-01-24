@@ -21,7 +21,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 		case LPAREN:
 			zn = &zone{zn, zn.paren + 1, nil}
 		case RPAREN:
-			if zn.expr == nil {
+			if zn.IsEmpty() {
 				return nil, pos - 1, UnexpectedToken
 			}
 
@@ -29,20 +29,20 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				var expr Λ
 				zn, expr = closeAbstractions(zn)
 
-				if zn.expr == nil || zn.zn == nil {
+				if zn.IsEmpty() || zn.IsRoot() {
 					return nil, pos - 1, UnexpectedToken
 				}
 
 				zn = zn.zn
 
-				if zn.expr != nil {
+				if !zn.IsEmpty() {
 					expr = &Application{zn.expr, expr}
 				}
 
 				zn.expr = expr
 			}
 		case LAMBDA:
-			if zn.expr != nil {
+			if !zn.IsEmpty() {
 				zn = &zone{zn, zn.paren, nil}
 			}
 
@@ -55,7 +55,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				case LAMBDA, LPAREN, RPAREN:
 					return nil, pos - 1, UnexpectedToken
 				case DOT:
-					if zn.zn != nil {
+					if !zn.IsRoot() {
 						if _, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
 							break definition
 						}
@@ -72,13 +72,13 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 		case DOT:
 			return nil, pos - 1, UnexpectedToken
 		case EOF:
-			if zn.expr == nil {
+			if zn.IsEmpty() {
 				return nil, pos, UnexpectedEndOfInput
 			}
 
 			zn, _ = closeAbstractions(zn)
 
-			if zn.expr == nil || zn.zn != nil {
+			if zn.IsEmpty() || !zn.IsRoot() {
 				return nil, pos, UnexpectedEndOfInput
 			}
 
@@ -86,7 +86,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 		default:
 			var expr Λ = &Variable{string(token)}
 
-			if zn.expr != nil {
+			if !zn.IsEmpty() {
 				expr = &Application{zn.expr, expr}
 			}
 
@@ -98,7 +98,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 func closeAbstractions(inzn *zone) (zn *zone, expr Λ) {
 	zn, expr = inzn, inzn.expr
 
-	for zn.zn != nil {
+	for !zn.IsRoot() {
 		if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
 			zn = zn.zn
 			abstr.Body = expr
@@ -115,6 +115,14 @@ type zone struct {
 	zn    *zone
 	paren int
 	expr  Λ
+}
+
+func (zn *zone) IsEmpty() bool {
+	return zn.expr == nil
+}
+
+func (zn *zone) IsRoot() bool {
+	return zn.zn == nil
 }
 
 type unexpectedEndOfInput struct{}
