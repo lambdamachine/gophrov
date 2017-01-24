@@ -85,8 +85,8 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 	}
 }
 
-func closeAbstractions(inzn *zone) (zn *zone, expr Λ) {
-	zn, expr = inzn, inzn.expr
+func closeAbstractions(zn *zone) (*zone, Λ) {
+	expr := zn.expr
 
 	for !zn.IsRoot() {
 		if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
@@ -98,7 +98,7 @@ func closeAbstractions(inzn *zone) (zn *zone, expr Λ) {
 		}
 	}
 
-	return
+	return zn, expr
 }
 
 type zone struct {
