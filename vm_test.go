@@ -9,7 +9,11 @@ var vmInvalidExamples = map[string]struct {
 	err error
 	pos int
 }{
-	"x": {λ.UnexpectedFreeVariable, 0},
+	"x":             {λ.UnexpectedFreeVariable, 0},
+	"λx.y":          {λ.UnexpectedFreeVariable, 3},
+	"λx y.x y z":    {λ.UnexpectedFreeVariable, 8},
+	"λx.λy.x y z":   {λ.UnexpectedFreeVariable, 9},
+	"λx.x (x λy.z)": {λ.UnexpectedFreeVariable, 11},
 }
 
 func TestVM(t *testing.T) {
