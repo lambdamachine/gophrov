@@ -35,6 +35,9 @@ var parserValidExamples = map[string]string{
 	"(  λ\t\tx .x (λy  .\nx)\n)":       "λx.x (λy.x)",
 	"(λx.x (λy.(x y)) x (λy z.(x z)))": "λx.x (λy.x y) x (λy.λz.x z)",
 	"x (λx.x y (λy.x) z)":              "x (λx.x y (λy.x) z)",
+	"x (λx.x y (λy.x (λx.x)) z)":       "x (λx.x y (λy.x (λx.x)) z)",
+	"x (λx.x y (λy.(x λx.x)) z)":       "x (λx.x y (λy.x (λx.x)) z)",
+	"x (λx.x y (λy.x λx.x) z)":         "x (λx.x y (λy.x (λx.x)) z)",
 }
 
 func TestParseValidLambdaExpressions(t *testing.T) {
