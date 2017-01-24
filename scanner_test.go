@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"testing"
+	"unicode/utf8"
 )
 
 var scannerExamples = map[string][]λ.Token{
@@ -95,7 +96,9 @@ func TestScanner(t *testing.T) {
 	var scanner λ.Scanner
 
 	for example, expected := range scannerExamples {
-		input := bufio.NewReader(bytes.NewReader([]byte(example)))
+		exampleBytes := []byte(example)
+		exampleSize := utf8.RuneCount(exampleBytes)
+		input := bufio.NewReader(bytes.NewReader(exampleBytes))
 		total := 0
 
 		for i := 0; ; i++ {
@@ -116,9 +119,9 @@ func TestScanner(t *testing.T) {
 			}
 		}
 
-		if total != len(example) {
+		if total != exampleSize {
 			t.Fatalf("number of runes read %d does not equal to length of source %d",
-				total, len(example))
+				total, exampleSize)
 		}
 	}
 }

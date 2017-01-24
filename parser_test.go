@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"bytes"
 	"testing"
+	"unicode/utf8"
 )
 
 var parserValidExamples = map[string]string{
@@ -30,15 +31,17 @@ func TestParseValidLambdaExpressions(t *testing.T) {
 	var parser λ.Parser
 
 	for example, expectedExprString := range parserValidExamples {
-		source := bufio.NewReader(bytes.NewReader([]byte(example)))
+		exampleBytes := []byte(example)
+		exampleSize := utf8.RuneCount(exampleBytes)
+		source := bufio.NewReader(bytes.NewReader(exampleBytes))
 		expr, n, err := parser.Parse(source)
 
 		if err != nil {
 			t.Errorf("expected (%s) to be parsed successfully, got error: %v",
 				example, err)
-		} else if expr.String() != expectedExprString || n != len(example) {
+		} else if expr.String() != expectedExprString || n != exampleSize {
 			t.Errorf("expected to parse %d runes of (%s) as (%s), got %d runes as (%s) instead",
-				len(example), example, expectedExprString, n, expr)
+				exampleSize, example, expectedExprString, n, expr)
 		}
 	}
 }
@@ -53,7 +56,7 @@ var parserInvalidExamples = map[string]struct {
 	"(x y (x y)": {λ.UnexpectedEndOfInput, 10},
 	")":          {λ.UnexpectedToken, 0},
 	"()":         {λ.UnexpectedToken, 1},
-	"λ)":         {λ.UnexpectedToken, 2},
+	"λ)":         {λ.UnexpectedToken, 1},
 }
 
 func TestParseInvalidLambdaExpressions(t *testing.T) {

@@ -9,13 +9,14 @@ type Scanner struct{}
 
 func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
 	for {
-		r, n, err := input.ReadRune()
-		pos += n
+		r, _, err := input.ReadRune()
 
 		if err != nil {
 			tok = EOF
 			return
 		}
+
+		pos++
 
 		switch r {
 		case ' ', '\n', '\t':
@@ -41,7 +42,7 @@ func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
 			buf.WriteRune(r)
 
 			for {
-				r, n, err := input.ReadRune()
+				r, _, err := input.ReadRune()
 
 				if err != nil {
 					goto exit
@@ -51,7 +52,7 @@ func (scnr *Scanner) Scan(input io.RuneScanner) (tok Token, pos int) {
 				case ' ', '\n', '\t', 'λ', '.', '(', ')':
 					goto exit
 				default:
-					pos += n
+					pos++
 					buf.WriteRune(r)
 				}
 			}
