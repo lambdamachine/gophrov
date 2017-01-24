@@ -82,7 +82,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 					zn = zn.NewAbstractionZone()
 
 					if err := prsr.Report(&report{ABSTRACTION_ENTER, abstr}); err != nil {
-						return nil, pos, err
+						return nil, pos - n, err
 					}
 				}
 			}
@@ -110,7 +110,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 			zn.SetOrApply(variable)
 
 			if err := prsr.Report(&report{VARIABLE_SPOT, variable}); err != nil {
-				return nil, pos, err
+				return nil, pos - n, err
 			}
 		}
 	}

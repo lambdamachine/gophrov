@@ -71,10 +71,17 @@ type scope struct {
 }
 
 func (scp *scope) NewNestedScope(name string) *scope {
-	names := map[string]bool{name: true}
+	names := map[string]bool{}
+
+	for k, v := range scp.names {
+		names[k] = v
+	}
+
+	names[name] = true
 	return &scope{scp, names}
 }
 
-func (scp *scope) HasName(name string) bool {
-	return true
+func (scp *scope) HasName(name string) (ok bool) {
+	_, ok = scp.names[name]
+	return
 }
