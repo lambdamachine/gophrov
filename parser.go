@@ -28,13 +28,13 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 			}
 
 			for paren := zn.paren; zn.paren == paren; {
-				var expr Λ
-				zn, expr = closeAbstractions(zn)
+				zn = closeAbstractions(zn)
 
 				if zn.IsEmpty() || zn.IsRoot() {
 					return nil, pos - 1, UnexpectedToken
 				}
 
+				expr := zn.expr
 				zn = zn.zn
 				zn.SetOrApply(expr)
 			}
@@ -73,7 +73,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				return nil, pos, UnexpectedEndOfInput
 			}
 
-			zn, _ = closeAbstractions(zn)
+			zn = closeAbstractions(zn)
 
 			if zn.IsEmpty() || !zn.IsRoot() {
 				return nil, pos, UnexpectedEndOfInput
@@ -86,7 +86,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 	}
 }
 
-func closeAbstractions(zn *zone) (*zone, Λ) {
+func closeAbstractions(zn *zone) *zone {
 	expr := zn.expr
 
 	for !zn.IsRoot() {
@@ -99,7 +99,7 @@ func closeAbstractions(zn *zone) (*zone, Λ) {
 		}
 	}
 
-	return zn, expr
+	return zn
 }
 
 type zone struct {
