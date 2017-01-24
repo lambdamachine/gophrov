@@ -6,7 +6,8 @@ import (
 )
 
 type Parser struct {
-	scnr Scanner
+	Report Reporter
+	scnr   Scanner
 }
 
 func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
@@ -14,6 +15,14 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 		pos = 0
 		zn  = newRootZone()
 	)
+
+	if nil == prsr.Report {
+		prsr.Report = func(_ Report) error {
+			return nil
+		}
+	}
+
+	prsr.Report(nil)
 
 	for {
 		token, n := prsr.scnr.Scan(input)
@@ -101,6 +110,16 @@ func closeAbstractions(zn *zone) *zone {
 
 	return zn
 }
+
+type Reporter func(Report) error
+
+type Report interface {
+	Event() ParserEvent
+	Expr() Λ
+	Pos() int
+}
+
+type ParserEvent int
 
 type zone struct {
 	zn    *zone
