@@ -5,6 +5,24 @@ import (
 	"testing"
 )
 
+var vmValidExamples = []string{
+	"λx.x",
+	"λx y.x",
+	"λx y.y",
+	"λx y z.x y (y z)",
+}
+
+func TestVMEvaluationSuccesses(t *testing.T) {
+	for _, example := range vmValidExamples {
+		var vm λ.VM
+		err, _ := vm.EvalString(example)
+
+		if err != nil {
+			t.Errorf("expected successful evaluation of (%s), got error %q", example, err)
+		}
+	}
+}
+
 var vmInvalidExamples = map[string]struct {
 	err error
 	pos int
@@ -17,7 +35,7 @@ var vmInvalidExamples = map[string]struct {
 	"λx..":          {λ.UnexpectedToken, 3},
 }
 
-func TestVM(t *testing.T) {
+func TestVMEvaluationErrors(t *testing.T) {
 	var vm λ.VM
 
 	for example, expected := range vmInvalidExamples {
