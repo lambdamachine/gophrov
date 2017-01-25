@@ -5,20 +5,47 @@ import (
 	"testing"
 )
 
-var vmValidExamples = []string{
-	"λx.x",
-	"λx y.x",
-	"λx y.y",
-	"λx y z.x y (y z)",
+var vmValidExamples = []struct {
+	source  string
+	quantum string
+}{
+	{
+		"λx.x",
+		"λx.x",
+	},
+	{
+		"λx.λy.x",
+		"λx.λy.x",
+	},
+	{
+		"λx.x",
+		"λx.x",
+	},
+	{
+		"λx y.y",
+		"λx.λy.y",
+	},
+	{
+		"λx.λy.x y",
+		"λy.y",
+	},
+	{
+		"λx.λy.λz.x y (y z)",
+		"λx.λy.λz.x y (y z)",
+	},
 }
 
 func TestVMEvaluationSuccesses(t *testing.T) {
+	var vm λ.VM
+
 	for _, example := range vmValidExamples {
-		var vm λ.VM
-		err, _ := vm.EvalString(example)
+		err, _ := vm.EvalString(example.source)
 
 		if err != nil {
-			t.Errorf("expected successful evaluation of (%s), got error %q", example, err)
+			t.Fatalf("expected successful evaluation of (%s), got error %q",
+				example.source, err)
+		} else if example.quantum != vm.Quantum().String() {
+			t.Fatalf("expected quantum (%s), got (%s)", example.quantum, vm.Quantum())
 		}
 	}
 }

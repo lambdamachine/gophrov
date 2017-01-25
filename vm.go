@@ -11,6 +11,10 @@ type VM struct {
 	parser Parser
 }
 
+func (vm *VM) Quantum() Λ {
+	return vm.expr
+}
+
 func (vm *VM) EvalString(src string) (error, Trace) {
 	scp := &scope{nil, map[string]bool{}}
 
