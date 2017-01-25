@@ -19,6 +19,10 @@ var vmValidExamples = []struct {
 	},
 	{
 		"λx.x",
+		"λy.x",
+	},
+	{
+		"λx y z.x",
 		"λx.x",
 	},
 	{
@@ -26,7 +30,7 @@ var vmValidExamples = []struct {
 		"λx.λy.y",
 	},
 	{
-		"λx.λy.x y",
+		"λx y.x y",
 		"λy.y",
 	},
 	{

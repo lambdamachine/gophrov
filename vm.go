@@ -50,9 +50,19 @@ func (vm *VM) EvalString(src string) (error, Trace) {
 		return err, &trace{pos: pos}
 	}
 
-	vm.expr = expr
+	if nil == vm.expr {
+		vm.expr = expr
+	} else {
+		vm.expr = &Application{vm.expr, expr}
+	}
+
+	vm.reduce()
 
 	return nil, nil
+}
+
+func (vm *VM) reduce() {
+	// ???
 }
 
 var UnexpectedFreeVariable = errors.New("unexpected free variable")
