@@ -38,6 +38,7 @@ var parserValidExamples = map[string]string{
 	"x (λx.x y (λy.x (λx.x)) z)":       "x (λx.x y (λy.x (λx.x)) z)",
 	"x (λx.x y (λy.(x λx.x)) z)":       "x (λx.x y (λy.x (λx.x)) z)",
 	"x (λx.x y (λy.x λx.x) z)":         "x (λx.x y (λy.x (λx.x)) z)",
+	"(λx y.x) (λc.c) (λa b.b)":         "(λx.λy.x) (λc.c) (λa.λb.b)",
 }
 
 func TestParseValidLambdaExpressions(t *testing.T) {
@@ -50,8 +51,8 @@ func TestParseValidLambdaExpressions(t *testing.T) {
 		expr, n, err := parser.Parse(source)
 
 		if err != nil {
-			t.Errorf("expected (%s) to be parsed successfully, got error: %v",
-				example, err)
+			t.Errorf("expected (%s) to be parsed successfully, got error at rune %d: %v",
+				example, n, err)
 		} else if expr.String() != expectedExprString || n != exampleSize {
 			t.Errorf("expected to parse %d runes of (%s) as (%s), got %d runes as (%s) instead",
 				exampleSize, example, expectedExprString, n, expr)

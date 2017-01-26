@@ -28,18 +28,31 @@ type Application struct {
 }
 
 func (app *Application) String() string {
-	return fmt.Sprintf("%s %s", app.Fn, &parens{app.Arg})
+	return fmt.Sprintf("%s %s", &prettyFn{app.Fn}, &prettyArg{app.Arg})
 }
 
-type parens struct {
+type prettyFn struct {
 	expr Λ
 }
 
-func (prns *parens) String() string {
-	switch prns.expr.(type) {
-	case *Variable:
-		return prns.expr.String()
+func (pty *prettyFn) String() string {
+	switch pty.expr.(type) {
+	case *Abstraction:
+		return fmt.Sprintf("(%s)", pty.expr.String())
 	default:
-		return fmt.Sprintf("(%s)", prns.expr.String())
+		return pty.expr.String()
+	}
+}
+
+type prettyArg struct {
+	expr Λ
+}
+
+func (pty *prettyArg) String() string {
+	switch pty.expr.(type) {
+	case *Variable:
+		return pty.expr.String()
+	default:
+		return fmt.Sprintf("(%s)", pty.expr.String())
 	}
 }

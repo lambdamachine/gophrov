@@ -32,11 +32,12 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 		case LPAREN:
 			zn = zn.NewParenZone()
 		case RPAREN:
-			if zn.IsEmpty() {
-				return nil, pos - 1, UnexpectedToken
-			}
-
 			for paren := zn.paren; zn.paren == paren; {
+				if zn.IsEmpty() {
+					input.UnreadRune()
+					return nil, pos - 1, UnexpectedToken
+				}
+
 				var err error
 				zn, err = prsr.closeAbstractions(zn)
 
@@ -45,6 +46,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 				}
 
 				if zn.IsEmpty() || zn.IsRoot() {
+					input.UnreadRune()
 					return nil, pos - 1, UnexpectedToken
 				}
 
@@ -72,6 +74,7 @@ func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
 						}
 					}
 
+					input.UnreadRune()
 					return nil, pos - 1, UnexpectedToken
 				case EOF:
 					return nil, pos, UnexpectedEndOfInput
@@ -121,16 +124,20 @@ func (prsr *Parser) closeAbstractions(zn *zone) (*zone, error) {
 
 	for !zn.IsRoot() {
 		if abstr, isAbstr := zn.zn.expr.(*Abstraction); isAbstr {
-			zn = zn.zn
-			abstr.Body = expr
-			expr = zn.expr
+			if zn.paren == zn.zn.paren {
+				zn = zn.zn
+				abstr.Body = expr
+				expr = zn.expr
 
-			if err := prsr.Report(&report{ABSTRACTION_EXIT, abstr}); err != nil {
-				return nil, err
+				if err := prsr.Report(&report{ABSTRACTION_EXIT, abstr}); err != nil {
+					return nil, err
+				}
+
+				continue
 			}
-		} else {
-			break
 		}
+
+		break
 	}
 
 	return zn, nil
