@@ -84,7 +84,13 @@ func (vm *VM) reduce(expr Λ) Λ {
 		case *Application:
 			switch fn := current.Fn.(type) {
 			case *Abstraction:
-				vm.tape[fn.Arg.Name] = current.Arg
+				switch arg := current.Arg.(type) {
+				case *Variable:
+					vm.tape[fn.Arg.Name] = vm.tape[arg.Name]
+				default:
+					vm.tape[fn.Arg.Name] = current.Arg
+				}
+
 				expr = fn.Body
 			case *Application:
 				stack = append(stack, current.Arg)
