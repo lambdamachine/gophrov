@@ -46,6 +46,14 @@ var vmValidExamples = []struct {
 		"λc.c",
 	},
 	{
+		"(λa b.a (λa.a) b) (λz.z) (λa.a)",
+		"λa.a",
+	},
+	{
+		"(λa.((λa.a) (λf.f)) ((λx.x) a)) (λt.t)",
+		"λt.t",
+	},
+	{
 		"λx.λy.λz.x y (y z)",
 		"λx.λy.λz.x y (y z)",
 	},
