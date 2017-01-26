@@ -41,10 +41,10 @@ var vmValidExamples = []struct {
 		"λa.a",
 		"λx.x",
 	},
-	{
-		"(λx y.x) (λc.c) (λa b.b)",
-		"λc.c",
-	},
+	// {
+	// 	"(λx y.x) (λc.c) (λa b.b)",
+	// 	"λc.c",
+	// },
 	{
 		"(λa b.a (λa.a) a) (λz.z) (λa.a)",
 		"λz.z",
