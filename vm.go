@@ -9,6 +9,7 @@ import (
 type VM struct {
 	expr   Λ
 	parser Parser
+	tape   map[string]Λ
 }
 
 func (vm *VM) Quantum() Λ {
@@ -62,7 +63,28 @@ func (vm *VM) EvalString(src string) (error, Trace) {
 }
 
 func (vm *VM) reduce() {
-	// ???
+	if nil == vm.tape {
+		vm.tape = map[string]Λ{}
+	}
+
+	for {
+		switch expr := vm.expr.(type) {
+		case *Abstraction:
+			return
+		case *Application:
+			switch fn := expr.Fn.(type) {
+			case *Abstraction:
+				vm.tape[fn.Arg.Name] = expr.Arg
+				vm.expr = fn.Body
+			case *Application:
+				return
+			case *Variable:
+				expr.Fn = vm.tape[fn.Name]
+			}
+		case *Variable:
+			vm.expr = vm.tape[expr.Name]
+		}
+	}
 }
 
 var UnexpectedFreeVariable = errors.New("unexpected free variable")
