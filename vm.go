@@ -7,9 +7,9 @@ import (
 )
 
 type VM struct {
+	Tape   Tape
 	expr   Λ
 	parser Parser
-	tape   map[string]Λ
 }
 
 func (vm *VM) Quantum() Λ {
@@ -64,9 +64,36 @@ func (vm *VM) EvalString(src string) (error, Trace) {
 	return nil, nil
 }
 
+type Tape interface {
+	Load(string) Λ
+	Expand(string, Λ)
+	Shrink()
+}
+
+type tape struct {
+	data map[string]Λ
+}
+
+func newTape() *tape {
+	return &tape{data: map[string]Λ{}}
+}
+
+func (t *tape) Load(key string) (expr Λ) {
+	expr, _ = t.data[key]
+	return
+}
+
+func (t *tape) Expand(key string, expr Λ) {
+	t.data[key] = expr
+}
+
+func (t *tape) Shrink() {
+
+}
+
 func (vm *VM) reduce(expr Λ) Λ {
-	if nil == vm.tape {
-		vm.tape = map[string]Λ{}
+	if nil == vm.Tape {
+		vm.Tape = newTape()
 	}
 
 	stack := []Λ{}
@@ -74,6 +101,8 @@ func (vm *VM) reduce(expr Λ) Λ {
 	for {
 		switch current := expr.(type) {
 		case *Abstraction:
+			vm.Tape.Shrink()
+
 			if len(stack) > 0 {
 				expr, stack = stack[len(stack)-1], stack[:len(stack)-1]
 				expr = &Application{current, expr}
@@ -86,9 +115,9 @@ func (vm *VM) reduce(expr Λ) Λ {
 			case *Abstraction:
 				switch arg := current.Arg.(type) {
 				case *Variable:
-					vm.tape[fn.Arg.Name] = vm.tape[arg.Name]
+					vm.Tape.Expand(fn.Arg.Name, vm.Tape.Load(arg.Name))
 				default:
-					vm.tape[fn.Arg.Name] = current.Arg
+					vm.Tape.Expand(fn.Arg.Name, current.Arg)
 				}
 
 				expr = fn.Body
@@ -96,10 +125,10 @@ func (vm *VM) reduce(expr Λ) Λ {
 				stack = append(stack, current.Arg)
 				expr = fn
 			case *Variable:
-				current.Fn = vm.tape[fn.Name]
+				current.Fn = vm.Tape.Load(fn.Name)
 			}
 		case *Variable:
-			expr = vm.tape[current.Name]
+			expr = vm.Tape.Load(current.Name)
 		}
 	}
 }
