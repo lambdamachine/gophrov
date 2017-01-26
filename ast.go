@@ -2,7 +2,7 @@ package λ
 
 import "fmt"
 
-type Λ interface {
+type Expression interface {
 	String() string
 }
 
@@ -16,7 +16,7 @@ func (v *Variable) String() string {
 
 type Abstraction struct {
 	Arg  *Variable
-	Body Λ
+	Body Expression
 }
 
 func (λ *Abstraction) String() string {
@@ -24,7 +24,7 @@ func (λ *Abstraction) String() string {
 }
 
 type Application struct {
-	Fn, Arg Λ
+	Fn, Arg Expression
 }
 
 func (app *Application) String() string {
@@ -32,7 +32,7 @@ func (app *Application) String() string {
 }
 
 type parens struct {
-	expr Λ
+	expr Expression
 }
 
 func (prns *parens) String() string {

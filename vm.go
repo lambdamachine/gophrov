@@ -7,11 +7,11 @@ import (
 )
 
 type VM struct {
-	expr   Λ
+	expr   Expression
 	parser Parser
 }
 
-func (vm *VM) Quantum() Λ {
+func (vm *VM) Quantum() Expression {
 	return vm.expr
 }
 

@@ -10,7 +10,7 @@ type Parser struct {
 	scnr   Scanner
 }
 
-func (prsr *Parser) Parse(input io.RuneScanner) (Λ, int, error) {
+func (prsr *Parser) Parse(input io.RuneScanner) (Expression, int, error) {
 	var (
 		pos = 0
 		zn  = newRootZone()
@@ -140,19 +140,19 @@ type Reporter func(Report) error
 
 type Report interface {
 	Event() ParserEvent
-	Expr() Λ
+	Expr() Expression
 }
 
 type report struct {
 	event ParserEvent
-	expr  Λ
+	expr  Expression
 }
 
 func (rprt *report) Event() ParserEvent {
 	return rprt.event
 }
 
-func (rprt *report) Expr() Λ {
+func (rprt *report) Expr() Expression {
 	return rprt.expr
 }
 
@@ -167,7 +167,7 @@ const (
 type zone struct {
 	zn    *zone
 	paren int
-	expr  Λ
+	expr  Expression
 }
 
 func newRootZone() *zone {
@@ -190,7 +190,7 @@ func (zn *zone) IsRoot() bool {
 	return zn.zn == nil
 }
 
-func (zn *zone) SetOrApply(expr Λ) {
+func (zn *zone) SetOrApply(expr Expression) {
 	if !zn.IsEmpty() {
 		expr = &Application{zn.expr, expr}
 	}

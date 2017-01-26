@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var astExamples = map[λ.Λ]string{
+var astExamples = map[λ.Expression]string{
 	&λ.Abstraction{
 		&λ.Variable{"x"},
 		&λ.Variable{"x"},
