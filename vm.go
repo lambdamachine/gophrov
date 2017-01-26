@@ -51,38 +51,49 @@ func (vm *VM) EvalString(src string) (error, Trace) {
 		return err, &trace{pos: pos}
 	}
 
+	expr = vm.reduce(expr)
+
 	if nil == vm.expr {
 		vm.expr = expr
 	} else {
 		vm.expr = &Application{vm.expr, expr}
 	}
 
-	vm.reduce()
+	vm.expr = vm.reduce(vm.expr)
 
 	return nil, nil
 }
 
-func (vm *VM) reduce() {
+func (vm *VM) reduce(expr Λ) Λ {
 	if nil == vm.tape {
 		vm.tape = map[string]Λ{}
 	}
 
+	stack := []Λ{}
+
 	for {
-		switch expr := vm.expr.(type) {
+		switch current := expr.(type) {
 		case *Abstraction:
-			return
+			if len(stack) > 0 {
+				expr, stack = stack[len(stack)-1], stack[:len(stack)-1]
+				expr = &Application{current, expr}
+				continue
+			}
+
+			return expr
 		case *Application:
-			switch fn := expr.Fn.(type) {
+			switch fn := current.Fn.(type) {
 			case *Abstraction:
-				vm.tape[fn.Arg.Name] = expr.Arg
-				vm.expr = fn.Body
+				vm.tape[fn.Arg.Name] = current.Arg
+				expr = fn.Body
 			case *Application:
-				return
+				stack = append(stack, current.Arg)
+				expr = fn
 			case *Variable:
-				expr.Fn = vm.tape[fn.Name]
+				current.Fn = vm.tape[fn.Name]
 			}
 		case *Variable:
-			vm.expr = vm.tape[expr.Name]
+			expr = vm.tape[current.Name]
 		}
 	}
 }

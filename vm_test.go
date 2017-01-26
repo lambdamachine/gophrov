@@ -45,10 +45,10 @@ var vmValidExamples = []struct {
 		"(λx y.x) (λc.c) (λa b.b)",
 		"λc.c",
 	},
-	// {
-	// 	"λx.λy.λz.x y (y z)",
-	// 	"λx.λy.λz.x y (y z)",
-	// },
+	{
+		"λx.λy.λz.x y (y z)",
+		"λx.λy.λz.x y (y z)",
+	},
 }
 
 func TestVMEvaluationSuccesses(t *testing.T) {
